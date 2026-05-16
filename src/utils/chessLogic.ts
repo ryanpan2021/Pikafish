@@ -360,7 +360,7 @@ export function makeMove(
   return newBoard;
 }
 
-// FEN 转换（简化版中国象棋 FEN）
+// FEN 转换（标准中国象棋 FEN）
 export function boardToFEN(
   board: (Piece | null)[][],
   currentTurn: PieceColor
@@ -390,7 +390,8 @@ export function boardToFEN(
     }
   }
   
-  fen += ' ' + (currentTurn === 'red' ? 'w' : 'b');
+  // 完整的中国象棋FEN格式：rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1
+  fen += ' ' + (currentTurn === 'red' ? 'w' : 'b') + ' - - 0 1';
   return fen;
 }
 
@@ -414,7 +415,7 @@ function getFENChar(piece: Piece): string {
   return pieceMap[`${piece.color}-${piece.type}`] || ' ';
 }
 
-// UCI 格式转坐标
+// UCI 格式转坐标 (Pikafish 使用 a0-i9 格式，y从0开始)
 export function uciToMove(uci: string): { from: Position; to: Position } {
   const files = 'abcdefghi';
   const fromFile = uci[0];
@@ -423,13 +424,13 @@ export function uciToMove(uci: string): { from: Position; to: Position } {
   const toRank = parseInt(uci[3]);
   
   return {
-    from: { x: files.indexOf(fromFile), y: 9 - (fromRank - 1) },
-    to: { x: files.indexOf(toFile), y: 9 - (toRank - 1) },
+    from: { x: files.indexOf(fromFile), y: fromRank },
+    to: { x: files.indexOf(toFile), y: toRank },
   };
 }
 
-// 坐标转 UCI
+// 坐标转 UCI (Pikafish 使用 a0-i9 格式，y从0开始)
 export function moveToUCI(from: Position, to: Position): string {
   const files = 'abcdefghi';
-  return `${files[from.x]}${9 - from.y + 1}${files[to.x]}${9 - to.y + 1}`;
+  return `${files[from.x]}${from.y}${files[to.x]}${to.y}`;
 }
